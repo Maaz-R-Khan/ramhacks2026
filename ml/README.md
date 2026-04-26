@@ -50,3 +50,31 @@ python3 ml/scripts/train_classifier.py
 
 The trained model is written to `ml/models/exercise_classifier.joblib`, and
 metrics are written to `ml/models/exercise_classifier_report.json`.
+
+## Form Correctness
+
+The classifier above predicts a class. Correct-vs-incorrect form is a different
+problem. For supervised learning, the dataset needs labels such as `correct` and
+`incorrect` for each exercise.
+
+Because `exercise_angles.csv` only contains exercise labels, the current baseline
+assumes those rows are examples of acceptable form. It learns the normal angle
+range for each exercise and marks incoming form as incorrect when the angles are
+too far from that reference.
+
+Train the form reference:
+
+```bash
+python3 ml/scripts/train_form_reference.py
+```
+
+Test one pose:
+
+```bash
+python3 ml/scripts/predict_form.py \
+  --exercise "Squats" \
+  --angles "90,170,80,95,90,90,90,90,90,90"
+```
+
+For production, compute the same 10 angles from live MediaPipe landmarks and
+send those angles to the backend with the exercise name.
