@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Login.css'
 
 export default function Login() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState('signin')
   const [showPw, setShowPw] = useState(false)
   const [submitLabel, setSubmitLabel] = useState(null)
@@ -20,7 +21,7 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault()
     setSubmitLabel('Warming up…')
-    setTimeout(() => setSubmitLabel(null), 1200)
+    setTimeout(() => navigate('/dashboard'), 700)
   }
 
   return (

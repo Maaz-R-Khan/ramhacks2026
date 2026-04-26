@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formline · Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="charts.jsx"></script>
+  <script type="text/babel" src="pages.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#d96b3a",
+      "startView": "hub",
+      "dataState": "sparse"
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [view, setView] = React.useState(TWEAK_DEFAULTS.startView || 'hub');
+      const [exerciseId, setExerciseId] = React.useState('squat');
+      const { tweaks, setTweak } = (() => {
+        const [t, s] = window.useTweaks(TWEAK_DEFAULTS);
+        return { tweaks: t, setTweak: s };
+      })();
+
+      // apply accent live
+      React.useEffect(() => {
+        document.documentElement.style.setProperty('--accent', tweaks.accent);
+      }, [tweaks.accent]);
+
+      // sample data state — sparse vs realistic
+      React.useEffect(() => {
+        if (tweaks.dataState === 'sparse') {
+          window.__BACKUP = window.__BACKUP || {
+            SETS_PER_WEEK: window.SETS_PER_WEEK,
+            BODYWEIGHT: window.BODYWEIGHT,
+            MUSCLE_VOLUME: { ...window.MUSCLE_VOLUME },
+            RECENT_SESSIONS: window.RECENT_SESSIONS,
+          };
+          window.SETS_PER_WEEK = [0,0,0,0,0,0,0,0,0,4,8];
+          window.BODYWEIGHT = window.__BACKUP.BODYWEIGHT.map(() => 173.0);
+          window.MUSCLE_VOLUME = { Legs: 4, Shoulders: 2, Chest: 0, Back: 6, Arms: 0 };
+          window.RECENT_SESSIONS = window.__BACKUP.RECENT_SESSIONS.slice(0, 2);
+        } else if (window.__BACKUP) {
+          window.SETS_PER_WEEK = window.__BACKUP.SETS_PER_WEEK;
+          window.BODYWEIGHT = window.__BACKUP.BODYWEIGHT;
+          window.MUSCLE_VOLUME = window.__BACKUP.MUSCLE_VOLUME;
+          window.RECENT_SESSIONS = window.__BACKUP.RECENT_SESSIONS;
+        }
+      }, [tweaks.dataState]);
+
+      const goto = (next, payload) => {
+        if (next === 'session' && payload) setExerciseId(payload);
+        setView(next);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      };
+
+      let screen;
+      if (view === 'hub')         screen = <window.Hub goto={goto} />;
+      else if (view === 'data')   screen = <window.DataView goto={goto} />;
+      else if (view === 'workout') screen = <window.WorkoutPicker goto={goto} />;
+      else if (view === 'session') screen = <window.Session goto={goto} exerciseId={exerciseId} />;
+      else if (view === 'profile') screen = <window.ProfileSettings goto={goto} />;
+
+      return (
+        <div className="app-shell" data-view={view} data-screen-label={view}>
+          {screen}
+
+          <window.TweaksPanel title="Tweaks">
+            <window.TweakSection title="Look">
+              <window.TweakColor
+                label="Accent color"
+                value={tweaks.accent}
+                presets={['#d96b3a', '#0a0a0c', '#3f6b3f', '#2a6cb0', '#8a3520', '#6b6b66']}
+                onChange={(v) => setTweak('accent', v)}
+              />
+            </window.TweakSection>
+
+            <window.TweakSection title="Layout">
+              <window.TweakRadio
+                label="Start view"
+                value={view}
+                options={[
+                  { label: 'Hub',      value: 'hub' },
+                  { label: 'Data',     value: 'data' },
+                  { label: 'Workouts', value: 'workout' },
+                ]}
+                onChange={(v) => goto(v)}
+              />
+            </window.TweakSection>
+
+            <window.TweakSection title="Data">
+              <window.TweakRadio
+                label="Sample data"
+                value={tweaks.dataState}
+                options={[
+                  { label: 'Realistic', value: 'realistic' },
+                  { label: 'Sparse',    value: 'sparse' },
+                ]}
+                onChange={(v) => setTweak('dataState', v)}
+              />
+            </window.TweakSection>
+          </window.TweaksPanel>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
