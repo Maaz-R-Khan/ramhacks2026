@@ -47,35 +47,12 @@ html:has(body.login-page) { height: 100%; }
 
 .formline-login .page { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 100vh; }
 
-/* ===== Left: dark liquid panel ===== */
+/* ===== Left: static black panel ===== */
 .formline-login .visual {
   position: relative; overflow: hidden;
   color: white;
   isolation: isolate;
-}
-.formline-login .visual-bg {
-  position: absolute; inset: -10%;
-  background:
-    radial-gradient(ellipse 55% 45% at 25% 30%, #2c2c34 0%, transparent 60%),
-    radial-gradient(ellipse 75% 55% at 72% 68%, #1c1c24 0%, transparent 65%),
-    radial-gradient(ellipse 60% 70% at 50% 88%, #16161c 0%, transparent 70%),
-    linear-gradient(180deg, #1a1a22 0%, #0a0a0c 100%);
-  filter: url(#login-liquid) blur(0.4px);
-  will-change: transform;
-}
-.formline-login .visual-bg::after {
-  content: ""; position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 32% 22% at 25% 32%, rgba(255,255,255,0.07), transparent 70%),
-    radial-gradient(ellipse 24% 16% at 70% 55%, rgba(255,255,255,0.05), transparent 70%);
-  mix-blend-mode: screen;
-  filter: blur(22px);
-}
-.formline-login .visual-noise {
-  position: absolute; inset: 0;
-  opacity: 0.06; pointer-events: none;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='1'/></svg>");
+  background: #000;
 }
 
 .formline-login .visual-inner {

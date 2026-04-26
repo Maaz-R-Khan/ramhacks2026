@@ -25,23 +25,8 @@ export default function Login() {
 
   return (
     <div className="formline-login">
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-        <defs>
-          <filter id="login-liquid">
-            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="3">
-              <animate attributeName="baseFrequency" dur="22s"
-                       values="0.008 0.012; 0.012 0.009; 0.008 0.012" repeatCount="indefinite" />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" scale="120" />
-          </filter>
-        </defs>
-      </svg>
-
       <main className="page">
         <aside className="visual">
-          <div className="visual-bg"></div>
-          <div className="visual-noise"></div>
-
           <div className="visual-inner">
             <div className="v-top">
               <Link to="/" className="brand">
