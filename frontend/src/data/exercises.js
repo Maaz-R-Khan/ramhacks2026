@@ -7,6 +7,11 @@ export const exerciseGroups = [
         name: 'Push-up',
         difficulty: 'Beginner',
         targetJoints: ['Elbow', 'Shoulder', 'Hip'],
+        repDetection: {
+          joints: ['left_elbow', 'right_elbow'],
+          inThreshold: 90,   // enters active phase when avg elbow < 90°
+          outThreshold: 160, // rep complete when elbow returns > 160°
+        },
         steps: [
           'Start in a plank with hands shoulder-width apart, arms straight.',
           'Lower your chest until it nearly touches the floor, elbows at ~45°.',
@@ -25,6 +30,11 @@ export const exerciseGroups = [
         name: 'Wide Push-up',
         difficulty: 'Beginner',
         targetJoints: ['Elbow', 'Shoulder', 'Hip'],
+        repDetection: {
+          joints: ['left_elbow', 'right_elbow'],
+          inThreshold: 90,
+          outThreshold: 160,
+        },
         steps: [
           'Start in a plank with hands wider than shoulder-width.',
           'Lower your chest toward the floor, keeping elbows pointing out to the sides.',
@@ -48,6 +58,11 @@ export const exerciseGroups = [
         name: 'Pull-up',
         difficulty: 'Intermediate',
         targetJoints: ['Elbow', 'Shoulder', 'Wrist'],
+        repDetection: {
+          joints: ['left_elbow', 'right_elbow'],
+          inThreshold: 70,   // enters active phase when elbow < 70° (chin over bar)
+          outThreshold: 150, // rep complete when elbow returns > 150° (back to hang)
+        },
         steps: [
           'Hang from a bar with hands just outside shoulder-width, palms facing away.',
           'Depress your shoulder blades and engage your lats.',
@@ -66,6 +81,11 @@ export const exerciseGroups = [
         name: 'Chin-up',
         difficulty: 'Intermediate',
         targetJoints: ['Elbow', 'Shoulder', 'Bicep'],
+        repDetection: {
+          joints: ['left_elbow', 'right_elbow'],
+          inThreshold: 70,
+          outThreshold: 150,
+        },
         steps: [
           'Hang from a bar with hands shoulder-width apart, palms facing you.',
           'Pull your chest toward the bar, leading with your elbows.',
@@ -89,6 +109,11 @@ export const exerciseGroups = [
         name: 'Squat',
         difficulty: 'Beginner',
         targetJoints: ['Knee', 'Hip', 'Ankle'],
+        repDetection: {
+          joints: ['left_knee', 'right_knee'],
+          inThreshold: 90,
+          outThreshold: 160,
+        },
         steps: [
           'Stand with feet shoulder-width apart, toes slightly out.',
           'Brace your core, then push hips back and bend knees simultaneously.',
@@ -107,6 +132,11 @@ export const exerciseGroups = [
         name: 'Lunge',
         difficulty: 'Beginner',
         targetJoints: ['Knee', 'Hip', 'Ankle'],
+        repDetection: {
+          joints: ['left_knee', 'right_knee'],
+          inThreshold: 90,
+          outThreshold: 150,
+        },
         steps: [
           'Stand tall, feet together, hands on hips.',
           'Step one foot forward about 2 to 3 feet.',
@@ -130,6 +160,7 @@ export const exerciseGroups = [
         name: 'Shoulder Circles',
         difficulty: 'Beginner',
         targetJoints: ['Shoulder', 'Scapula'],
+        repDetection: null,
         steps: [
           'Stand or sit upright with arms hanging at your sides.',
           'Slowly roll both shoulders forward in a large circular motion.',
@@ -148,6 +179,7 @@ export const exerciseGroups = [
         name: 'Arm Circles',
         difficulty: 'Beginner',
         targetJoints: ['Shoulder', 'Rotator Cuff'],
+        repDetection: null,
         steps: [
           'Stand with feet shoulder-width apart, arms extended straight out to the sides.',
           'Make small forward circles, gradually increasing the size.',
@@ -171,6 +203,7 @@ export const exerciseGroups = [
         name: 'Plank',
         difficulty: 'Beginner',
         targetJoints: ['Hip', 'Shoulder', 'Spine'],
+        repDetection: null,
         steps: [
           'Rest on forearms and toes, elbows directly under shoulders.',
           'Form a straight line from head to heels.',
