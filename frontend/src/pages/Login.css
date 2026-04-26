@@ -144,7 +144,7 @@ html:has(body.login-page) { height: 100%; }
   background: var(--paper-2);
   border-radius: 999px;
   padding: 4px;
-  margin: 36px 0 24px;
+  margin: 36px auto 24px;
   width: fit-content;
 }
 .formline-login .tab {
@@ -156,7 +156,11 @@ html:has(body.login-page) { height: 100%; }
 }
 .formline-login .tab.active { background: var(--ink); color: var(--paper); }
 
-.formline-login .socials { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+.formline-login .socials {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
 .formline-login .social {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   padding: 12px 14px;
@@ -164,6 +168,7 @@ html:has(body.login-page) { height: 100%; }
   border: 1px solid var(--line);
   border-radius: 999px;
   font-size: 13px;
+  min-width: 240px;
   transition: background .2s, border-color .2s;
 }
 .formline-login .social:hover { background: var(--paper-2); border-color: #c7c7c1; }

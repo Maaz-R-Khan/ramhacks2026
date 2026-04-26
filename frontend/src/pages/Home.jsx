@@ -352,7 +352,7 @@ export default function Home() {
               )}
               <div className="hero-grain"></div>
               <div className="hero-content" ref={heroContentRef}>
-                <div className="eyebrow"><span className="dot"></span>I &nbsp;·&nbsp; AI COACH IN YOUR POCKET</div>
+                <div className="eyebrow"><span></span>AI COACH IN YOUR POCKET</div>
                 <h1>Train <em>smarter,</em><br />move <em>better.</em></h1>
                 <p className="hero-sub">Formline is your AI personal trainer. It watches your form in real time, maps every workout, and adapts the plan as you grow stronger.</p>
               </div>

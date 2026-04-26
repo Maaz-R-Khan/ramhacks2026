@@ -94,12 +94,6 @@ export default function Login() {
                 </svg>
                 Continue with Google
               </button>
-              <button className="social" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M16.4 12.83a3.5 3.5 0 0 1 1.66-2.95 3.6 3.6 0 0 0-2.84-1.54c-1.2-.12-2.36.7-2.97.7-.62 0-1.57-.69-2.58-.67a3.78 3.78 0 0 0-3.18 1.94c-1.36 2.36-.35 5.84.97 7.75.65.94 1.41 1.99 2.42 1.95.97-.04 1.34-.62 2.51-.62 1.18 0 1.5.62 2.53.6 1.05-.02 1.71-.95 2.34-1.9a8.4 8.4 0 0 0 1.07-2.18 3.4 3.4 0 0 1-1.93-3.08ZM14.5 6.5a3.4 3.4 0 0 0 .78-2.5 3.5 3.5 0 0 0-2.27 1.18 3.27 3.27 0 0 0-.8 2.42c.9.07 1.78-.42 2.29-1.1Z" fill="currentColor"/>
-                </svg>
-                Continue with Apple
-              </button>
             </div>
 
             <div className="divider">or with email</div>
