@@ -1,13 +1,76 @@
+import { useEffect, useState } from 'react'
 import { AppNav, BackBtn, Arrow } from './AppNav'
 import { RadarChart, LineChart, Sparkline } from './charts'
-import { MUSCLE_GROUPS, MUSCLE_VOLUME, SETS_PER_WEEK, WEEK_LABELS, RECENT_SESSIONS, EXERCISES, PR_HISTORY, BODYWEIGHT } from './data'
+import { MUSCLE_GROUPS, EXERCISES, BODYWEIGHT, WEEK_LABELS } from './data'
+import { buildHistoryData, loadSetLogs } from './trainingData'
 
-export default function DataView({ goto }) {
-  const totalRecent = Object.values(MUSCLE_VOLUME).reduce((a, b) => a + b, 0)
+function HistoryState({ type = 'empty', dark = false, goto }) {
+  const copy = {
+    loading: {
+      title: 'Loading history.',
+      body: 'Pulling your logged sets from Firestore.',
+    },
+    error: {
+      title: 'History unavailable.',
+      body: 'Your local session still works, but charts could not load right now.',
+    },
+    empty: {
+      title: 'No logged sets yet.',
+      body: 'Finish a tracked set and this chart will fill from your own data.',
+    },
+  }[type]
+
+  return (
+    <div className={`history-state ${dark ? 'dark' : ''}`}>
+      <strong>{copy.title}</strong>
+      <span>{copy.body}</span>
+      {type === 'empty' && (
+        <button onClick={() => goto('workout')}>Start training</button>
+      )}
+    </div>
+  )
+}
+
+export default function DataView({ goto, user }) {
+  const [historyState, setHistoryState] = useState(() => ({
+    loading: true,
+    error: null,
+    data: buildHistoryData([]),
+  }))
+
+  useEffect(() => {
+    if (!user?.uid) return undefined
+
+    let cancelled = false
+    setHistoryState((prev) => ({ ...prev, loading: true, error: null }))
+
+    loadSetLogs(user.uid)
+      .then((logs) => {
+        if (cancelled) return
+        setHistoryState({ loading: false, error: null, data: buildHistoryData(logs) })
+      })
+      .catch((error) => {
+        console.error('History load failed:', error)
+        if (!cancelled) {
+          setHistoryState((prev) => ({ ...prev, loading: false, error }))
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.uid])
+
+  const history = historyState.data
+  const hasLogs = history.hasLogs
+  const currentWeekSets = history.setsPerWeek[history.setsPerWeek.length - 1] || 0
+  const prCount = Object.values(history.prHistory).filter((pr) => pr.value).length
   const last = BODYWEIGHT[BODYWEIGHT.length - 1]
   const first = BODYWEIGHT[0]
-  const avgSets = Math.round(SETS_PER_WEEK.reduce((a, b) => a + b, 0) / SETS_PER_WEEK.length)
   const avgBw = (BODYWEIGHT.reduce((a, b) => a + b, 0) / BODYWEIGHT.length).toFixed(1)
+
+  const historyStatusType = historyState.loading ? 'loading' : historyState.error ? 'error' : 'empty'
+  const showHistoryState = historyState.loading || historyState.error || !hasLogs
 
   return (
     <>
@@ -29,7 +92,7 @@ export default function DataView({ goto }) {
             </h1>
           </div>
           <p className="page-lede">
-            Eleven weeks of training, four lenses. Look for the rhythm — where you've leaned, where you've grown, where the next session should land.
+            Your tracked sets now build the history. Muscle balance, weekly volume, recent sessions, and PRs update from the sets you log.
           </p>
         </header>
 
@@ -44,19 +107,25 @@ export default function DataView({ goto }) {
                   </h3>
                 </div>
                 <div className="card-meta">
-                  <strong>{totalRecent}</strong>
+                  <strong>{history.totalRecent}</strong>
                   total sets
                 </div>
               </div>
-              <RadarChart data={MUSCLE_VOLUME} size={420} />
-              <div className="legend">
-                {MUSCLE_GROUPS.map((g) => (
-                  <div className="item" key={g}>
-                    <span>{g}</span>
-                    <span className="v">{MUSCLE_VOLUME[g]}</span>
+              {showHistoryState ? (
+                <HistoryState type={historyStatusType} goto={goto} />
+              ) : (
+                <>
+                  <RadarChart data={history.muscleVolume} size={420} />
+                  <div className="legend">
+                    {MUSCLE_GROUPS.map((g) => (
+                      <div className="item" key={g}>
+                        <span>{g}</span>
+                        <span className="v">{history.muscleVolume[g]}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
 
             <div className="card card-line">
@@ -68,15 +137,21 @@ export default function DataView({ goto }) {
                   </h3>
                 </div>
                 <div className="card-meta">
-                  <strong>+63%</strong>
-                  vs week 6
+                  <strong>{currentWeekSets}</strong>
+                  this wk
                 </div>
               </div>
-              <LineChart values={SETS_PER_WEEK} labels={WEEK_LABELS} />
-              <div className="line-foot">
-                <span>11 weeks</span>
-                <span>Avg {avgSets} / wk</span>
-              </div>
+              {showHistoryState ? (
+                <HistoryState type={historyStatusType} goto={goto} />
+              ) : (
+                <>
+                  <LineChart values={history.setsPerWeek} labels={history.weekLabels} />
+                  <div className="line-foot">
+                    <span>{history.weekLabels.length} weeks</span>
+                    <span>Avg {history.avgSets} / wk</span>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="card">
@@ -88,16 +163,20 @@ export default function DataView({ goto }) {
                   </h3>
                 </div>
               </div>
-              <div className="session-list">
-                {RECENT_SESSIONS.map((s, i) => (
-                  <div className="session-row" key={i}>
-                    <span className="s-date">{s.date}</span>
-                    <span className="s-title">{s.title}</span>
-                    <span className="s-meta">{s.duration} · {s.sets} sets</span>
-                    <span className="s-focus">{s.focus}</span>
-                  </div>
-                ))}
-              </div>
+              {showHistoryState ? (
+                <HistoryState type={historyStatusType} goto={goto} />
+              ) : (
+                <div className="session-list">
+                  {history.recentSessions.map((s, i) => (
+                    <div className="session-row" key={`${s.date}-${s.title}-${i}`}>
+                      <span className="s-date">{s.date}</span>
+                      <span className="s-title">{s.title}</span>
+                      <span className="s-meta">{s.duration} · {s.sets} sets</span>
+                      <span className="s-focus">{s.focus}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -111,24 +190,31 @@ export default function DataView({ goto }) {
                   </h3>
                 </div>
                 <div className="card-meta">
-                  <strong>5</strong>
+                  <strong>{prCount}</strong>
                   lifts tracked
                 </div>
               </div>
-              <div className="pr-list">
-                {EXERCISES.map((ex) => (
-                  <div className="pr-row" key={ex.id}>
-                    <span className="pr-name">{ex.name}</span>
-                    <span className="pr-trend">
-                      <Sparkline values={PR_HISTORY[ex.id]} w={100} h={28} color="var(--accent)" />
-                    </span>
-                    <span className="pr-val">
-                      {ex.pr.value}
-                      <small>{ex.pr.unit}</small>
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {showHistoryState ? (
+                <HistoryState type={historyStatusType} dark goto={goto} />
+              ) : (
+                <div className="pr-list">
+                  {EXERCISES.map((ex) => {
+                    const pr = history.prHistory[ex.id]
+                    return (
+                      <div className="pr-row" key={ex.id}>
+                        <span className="pr-name">{ex.name}</span>
+                        <span className="pr-trend">
+                          <Sparkline values={pr.history} w={100} h={28} color="var(--accent)" />
+                        </span>
+                        <span className="pr-val">
+                          {pr.value ?? '—'}
+                          {pr.value && <small>{pr.unit}</small>}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="card bw-card">
@@ -178,7 +264,7 @@ export default function DataView({ goto }) {
                 </div>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.55, color: 'rgba(255,255,255,0.75)', maxWidth: '36ch', marginBottom: 22 }}>
-                Lower-body focus. 4 lifts, 18 sets, ~52 minutes. Your hamstrings asked for it.
+                Log your next set and the profile charts will update from your own training history.
               </p>
               <button
                 onClick={() => goto('workout')}

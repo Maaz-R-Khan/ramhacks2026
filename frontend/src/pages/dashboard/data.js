@@ -10,6 +10,11 @@ export const EXERCISES = [
     sets: 3,
     reps: '6-10',
     cue: 'Drive elbows to ribs · pause at the top',
+    repDetection: {
+      joints: ['left_elbow', 'right_elbow'],
+      inThreshold: 70,
+      outThreshold: 150,
+    },
   },
   {
     id: 'row',
@@ -22,6 +27,11 @@ export const EXERCISES = [
     sets: 4,
     reps: '8',
     cue: 'Hinge to 45° · pull bar to belt · slow eccentric',
+    repDetection: {
+      joints: ['left_elbow', 'right_elbow'],
+      inThreshold: 70,
+      outThreshold: 150,
+    },
   },
   {
     id: 'press',
@@ -34,6 +44,11 @@ export const EXERCISES = [
     sets: 4,
     reps: '6-8',
     cue: 'Stack ribs over hips · press straight up',
+    repDetection: {
+      joints: ['left_elbow', 'right_elbow'],
+      inThreshold: 90,
+      outThreshold: 160,
+    },
   },
   {
     id: 'squat',
@@ -46,6 +61,11 @@ export const EXERCISES = [
     sets: 5,
     reps: '5',
     cue: 'Brace · break at hips and knees together · drive the floor',
+    repDetection: {
+      joints: ['left_knee', 'right_knee'],
+      inThreshold: 90,
+      outThreshold: 160,
+    },
   },
   {
     id: 'lunge',
@@ -58,6 +78,11 @@ export const EXERCISES = [
     sets: 3,
     reps: '10 / leg',
     cue: 'Long stride · knee tracks over toes · upright torso',
+    repDetection: {
+      joints: ['left_knee', 'right_knee'],
+      inThreshold: 90,
+      outThreshold: 150,
+    },
   },
 ]
 

@@ -1,0 +1,134 @@
+.detail-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 0.9rem;
+  padding: 0;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-btn:hover {
+  opacity: 1;
+}
+
+.back-btn::before {
+  content: '\2190';
+}
+
+.detail-header {
+  margin-bottom: 40px;
+}
+
+.detail-group {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+
+.detail-header h1 {
+  font-size: 2rem;
+  margin: 8px 0;
+}
+
+.detail-section {
+  margin-bottom: 36px;
+}
+
+.detail-section h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.steps-list {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  line-height: 1.6;
+}
+
+.angles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.angle-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.angle-joint {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.angle-target {
+  font-size: 0.95rem;
+  color: var(--accent);
+}
+
+.angle-note {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.mistakes-list {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.start-btn {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  background: #0a0a0c;
+  color: #ffffff;
+  border: 1px solid #0a0a0c;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.start-btn:hover {
+  background: #1a1a1e;
+  transform: translateX(2px);
+}
+
+.start-btn-arrow {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0a0a0c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

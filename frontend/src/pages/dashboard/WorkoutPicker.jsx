@@ -90,7 +90,7 @@ export default function WorkoutPicker({ goto }) {
             {filtered.map((ex, i) => {
               const words = ex.name.split(' ')
               return (
-                <button key={ex.id} className="exercise-card muscle-band" onClick={() => goto('session', ex.id)}>
+                <article key={ex.id} className="exercise-card muscle-band">
                   <div className="ex-head">
                     <span className="ex-num">
                       {String(i + 1).padStart(2, '0')} · {ex.muscle.toUpperCase()}
@@ -104,23 +104,28 @@ export default function WorkoutPicker({ goto }) {
                   </h3>
                   <p className="ex-cue">{ex.cue}</p>
                   <div className="ex-foot">
-                    <div className="ex-meta">
-                      <span>
-                        <strong>{ex.sets}</strong> sets
-                      </span>
-                      <span>
-                        <strong>{ex.reps}</strong> reps
-                      </span>
+                    <div className="ex-stats">
+                      <div className="ex-meta">
+                        <span>
+                          <strong>{ex.sets}</strong> sets
+                        </span>
+                        <span>
+                          <strong>{ex.reps}</strong> reps
+                        </span>
+                      </div>
+                      <div className="ex-pr">
+                        {ex.pr.value}
+                        <small>PR · {ex.pr.unit}</small>
+                      </div>
                     </div>
-                    <div className="ex-pr">
-                      {ex.pr.value}
-                      <small>PR · {ex.pr.unit}</small>
-                    </div>
+                    <button className="ex-start" onClick={() => goto('session', ex.id)}>
+                      Start
+                      <span className="arr">
+                        <Arrow />
+                      </span>
+                    </button>
                   </div>
-                  <span className="ex-arrow">
-                    <Arrow />
-                  </span>
-                </button>
+                </article>
               )
             })}
           </div>

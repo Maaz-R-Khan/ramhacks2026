@@ -1,4 +1,7 @@
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase'
 import './dashboard/dashboard.css'
 import Hub from './dashboard/Hub'
 import DataView from './dashboard/DataView'
@@ -7,30 +10,71 @@ import Session from './dashboard/Session'
 import ProfileSettings from './dashboard/ProfileSettings'
 
 export default function Dashboard() {
-  const [view, setView] = useState('hub')
-  const [exerciseId, setExerciseId] = useState('squat')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [user, setUser] = useState(() => auth.currentUser)
+  const [authReady, setAuthReady] = useState(() => Boolean(auth.currentUser))
 
   useEffect(() => {
     document.body.classList.add('dashboard-page')
     return () => document.body.classList.remove('dashboard-page')
   }, [])
 
+  useEffect(() => {
+    return onAuthStateChanged(auth, (nextUser) => {
+      setUser(nextUser)
+      setAuthReady(true)
+    })
+  }, [])
+
   const goto = (next, payload) => {
-    if (next === 'session' && payload) setExerciseId(payload)
-    setView(next)
+    const routes = {
+      hub: '/dashboard',
+      workout: '/dashboard/train',
+      data: '/dashboard/data',
+      profile: '/dashboard/profile',
+    }
+
+    const target = next === 'session' && payload
+      ? `/dashboard/train/${payload}`
+      : routes[next] || '/dashboard'
+
+    navigate(target)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  let screen = null
-  if (view === 'hub') screen = <Hub goto={goto} />
-  else if (view === 'data') screen = <DataView goto={goto} />
-  else if (view === 'workout') screen = <WorkoutPicker goto={goto} />
-  else if (view === 'session') screen = <Session goto={goto} exerciseId={exerciseId} />
-  else if (view === 'profile') screen = <ProfileSettings goto={goto} />
+  const view = (() => {
+    if (location.pathname === '/dashboard/train') return 'workout'
+    if (location.pathname.startsWith('/dashboard/train/')) return 'session'
+    if (location.pathname === '/dashboard/data') return 'data'
+    if (location.pathname === '/dashboard/profile') return 'profile'
+    return 'hub'
+  })()
+
+  if (!authReady) {
+    return (
+      <div className="formline-app app-shell" data-view={view}>
+        <main className="page">
+          <div className="history-state">Loading your training history...</div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
 
   return (
     <div className="formline-app app-shell" data-view={view}>
-      {screen}
+      <Routes>
+        <Route index element={<Hub goto={goto} />} />
+        <Route path="train" element={<WorkoutPicker goto={goto} />} />
+        <Route path="train/:exerciseId" element={<Session goto={goto} user={user} />} />
+        <Route path="data" element={<DataView goto={goto} user={user} />} />
+        <Route path="profile" element={<ProfileSettings goto={goto} />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </div>
   )
 }

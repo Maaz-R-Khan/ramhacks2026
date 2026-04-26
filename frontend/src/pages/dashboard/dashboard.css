@@ -386,6 +386,54 @@ html:has(body.dashboard-page) { height: 100%; }
   color: var(--ink);
 }
 .formline-app .card.dark .card-meta strong { color: var(--paper); }
+.formline-app .history-state {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px;
+  border: 1px dashed rgba(0,0,0,0.14);
+  border-radius: 6px;
+  color: var(--muted);
+  background: rgba(0,0,0,0.02);
+}
+.formline-app .history-state.dark {
+  border-color: rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.62);
+  background: rgba(255,255,255,0.04);
+}
+.formline-app .history-state strong {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+.formline-app .history-state.dark strong { color: var(--paper); }
+.formline-app .history-state span {
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.formline-app .history-state button {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: #ffffff;
+}
+.formline-app .history-state.dark button {
+  border-color: rgba(255,255,255,0.18);
+  color: var(--paper);
+  background: rgba(255,255,255,0.08);
+}
 
 .formline-app .card-radar { padding-bottom: 16px; }
 .formline-app .card-radar .legend {
@@ -559,7 +607,7 @@ html:has(body.dashboard-page) { height: 100%; }
   padding: 28px 26px 24px;
   position: relative;
   transition: background .2s, transform .25s, box-shadow .25s;
-  cursor: pointer;
+  cursor: default;
   display: flex; flex-direction: column;
   min-height: 280px;
   overflow: hidden;
@@ -609,6 +657,11 @@ html:has(body.dashboard-page) { height: 100%; }
 .formline-app .exercise-card .ex-foot {
   margin-top: auto;
   display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 20px;
+}
+.formline-app .exercise-card .ex-stats {
+  display: grid;
+  gap: 10px;
 }
 .formline-app .exercise-card .ex-meta {
   font-family: var(--mono); font-size: 10px;
@@ -619,13 +672,33 @@ html:has(body.dashboard-page) { height: 100%; }
 .formline-app .exercise-card .ex-meta strong { color: var(--ink); font-weight: 500; }
 .formline-app .exercise-card .ex-pr {
   font-family: var(--serif); font-size: 22px; font-style: italic;
-  text-align: right;
+  text-align: left;
 }
 .formline-app .exercise-card .ex-pr small {
   font-family: var(--mono); font-style: normal; font-size: 9px;
   letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--muted);
   display: block;
+}
+.formline-app .exercise-card .ex-start {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-width: 118px;
+  padding: 13px 16px;
+  border-radius: 999px;
+  background: var(--ink); color: var(--paper);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  transition: background .2s, transform .15s;
+  cursor: pointer;
+}
+.formline-app .exercise-card .ex-start:hover {
+  background: var(--accent);
+  transform: translateX(2px);
+}
+.formline-app .exercise-card .ex-start .arr {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  display: inline-flex; align-items: center; justify-content: center;
 }
 .formline-app .exercise-card .ex-arrow {
   position: absolute; right: 22px; bottom: 22px;
@@ -736,6 +809,130 @@ html:has(body.dashboard-page) { height: 100%; }
   margin-bottom: 36px;
 }
 
+.formline-app .pose-panel {
+  margin: 2px 0 34px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.formline-app .pose-panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.formline-app .pose-label {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 6px;
+}
+.formline-app .pose-panel-head p {
+  color: rgba(255,255,255,0.78);
+  font-size: 14px;
+}
+.formline-app .rep-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.formline-app .set-camera-btn {
+  min-width: 92px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: background .2s, border-color .2s, color .2s, opacity .2s;
+}
+.formline-app .set-camera-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.32);
+}
+.formline-app .set-camera-btn.is-stop {
+  border-color: rgba(217,107,58,0.42);
+  color: var(--accent);
+}
+.formline-app .set-camera-btn.is-start {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.formline-app .set-camera-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.formline-app .rep-pill {
+  min-width: 92px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: inline-flex; align-items: baseline; justify-content: center; gap: 7px;
+}
+.formline-app .rep-pill strong {
+  font-family: var(--serif); font-size: 30px;
+  font-weight: 400; line-height: 1;
+}
+.formline-app .rep-pill span {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.58);
+}
+.formline-app .camera-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 280px;
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+.formline-app .camera-feed,
+.formline-app .pose-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.formline-app .camera-feed {
+  object-fit: cover;
+}
+.formline-app .pose-canvas {
+  pointer-events: none;
+}
+.formline-app .camera-message {
+  min-height: 280px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: rgba(255,255,255,0.72);
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.formline-app .camera-message--overlay {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  background: rgba(14,14,12,0.74);
+}
+.formline-app .feedback-banner {
+  position: absolute;
+  left: 18px; right: 18px; bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: rgba(217,107,58,0.92);
+  color: var(--paper);
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+}
+
 .formline-app .set-tracker {
   margin-top: auto;
   border-top: 1px solid rgba(255,255,255,0.1);
@@ -755,6 +952,22 @@ html:has(body.dashboard-page) { height: 100%; }
   font-size: 36px; line-height: 1;
 }
 .formline-app .set-tracker .tr-head .count em { color: rgba(255,255,255,0.45); font-style: normal; font-family: var(--sans); font-size: 16px; margin-left: 6px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+.formline-app .set-row-labels {
+  display: grid;
+  grid-template-columns: 40px 1fr 90px 90px 100px;
+  gap: 14px;
+  align-items: center;
+  padding: 0 0 4px;
+}
+.formline-app .set-row-labels span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
 
 .formline-app .set-row {
   display: grid;
@@ -803,6 +1016,16 @@ html:has(body.dashboard-page) { height: 100%; }
   background: var(--accent); color: var(--paper); border-color: var(--accent);
 }
 .formline-app .set-row.complete .s-num { color: var(--accent); }
+.formline-app .sync-error {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(217,107,58,0.38);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.78);
+  background: rgba(217,107,58,0.12);
+  font-size: 13px;
+  line-height: 1.4;
+}
 
 .formline-app .session-side { display: grid; gap: 14px; }
 .formline-app .side-card {
@@ -912,5 +1135,10 @@ html:has(body.dashboard-page) { height: 100%; }
   .formline-app .app-nav { padding: 14px 22px; }
   .formline-app .app-nav .crumb { display: none; }
   .formline-app .session-main { padding: 28px; }
+  .formline-app .set-row-labels { grid-template-columns: 28px 1fr 70px 70px 80px; }
   .formline-app .set-row { grid-template-columns: 28px 1fr 70px 70px 80px; }
+  .formline-app .pose-panel-head { align-items: flex-start; flex-direction: column; }
+  .formline-app .rep-controls { width: 100%; justify-content: flex-end; }
+  .formline-app .camera-stage { aspect-ratio: 4 / 3; min-height: 220px; }
+  .formline-app .camera-message { min-height: 220px; }
 }
