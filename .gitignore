@@ -3,3 +3,6 @@ env
 .env
 __pycache__/
 *.pyc
+ml/raw/
+ml/processed/
+ml/models/
