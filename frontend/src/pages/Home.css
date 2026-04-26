@@ -106,8 +106,14 @@ body.home-page #root {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   display: block;
-  background: #050507;
   z-index: 0;
+}
+.formline-landing .hero-bg-canvas {
+  background: #050507;
+}
+.formline-landing .hero-bg-video {
+  object-fit: cover;
+  background: #050507;
 }
 .formline-landing .hero-grain {
   position: absolute; inset: 0;

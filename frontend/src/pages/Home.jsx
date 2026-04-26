@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 
+// Test switch for the landing hero background.
+// Set to 'shader' to restore the original WebGL animation.
+const HERO_BG_MODE = 'video-test'
+const HERO_VIDEO_PLACEHOLDER_SRC = '/liquid-loop.mp4'
+
 const MARQUEE_ITEMS = [
   'Northline Strength', 'Atrium Run Club', 'Pacific Lift Co.',
   'Foundry Athletic', 'Halo Mobility', 'Sixth Street Barbell',
@@ -154,6 +159,11 @@ export default function Home() {
   const heroBottomRef = useRef(null)
   const darkInnerWrapRef = useRef(null)
   const [time, setTime] = useState(() => formatTime(new Date()))
+  const [heroVideoFailed, setHeroVideoFailed] = useState(false)
+
+  const prefersVideoHero = HERO_BG_MODE === 'video-test'
+  const useVideoHero = prefersVideoHero && !heroVideoFailed
+  const useShaderHero = !useVideoHero
 
   useEffect(() => {
     document.body.classList.add('home-page')
@@ -166,6 +176,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
+    if (!useShaderHero) return undefined
     const canvas = heroCanvasRef.current
     if (!canvas) return undefined
     const gl = canvas.getContext('webgl', {
@@ -252,7 +263,7 @@ export default function Home() {
       gl.deleteShader(vs)
       gl.deleteShader(fs)
     }
-  }, [])
+  }, [useShaderHero])
 
   useEffect(() => {
     let raf = null
@@ -294,7 +305,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="formline-landing">
+    <div className="formline-landing" data-hero-bg-mode={useVideoHero ? 'video' : 'shader'}>
       <nav className="nav" ref={navRef}>
         <a href="#" className="brand">
           <span className="brand-mark"></span>
@@ -316,7 +327,29 @@ export default function Home() {
         <section className="hero-transition">
           <div className="sticky-stage">
             <section className="hero">
-              <canvas className="hero-bg" ref={heroCanvasRef}></canvas>
+              {/*
+                Original landing animation (kept for rollback):
+                <canvas className="hero-bg hero-bg-canvas" ref={heroCanvasRef}></canvas>
+              */}
+              {useVideoHero ? (
+                <video
+                  className="hero-bg hero-bg-video"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                  onError={() => {
+                    console.warn('Hero video failed to load. Falling back to WebGL shader animation.')
+                    setHeroVideoFailed(true)
+                  }}
+                >
+                  <source src={HERO_VIDEO_PLACEHOLDER_SRC} type="video/mp4" />
+                </video>
+              ) : (
+                <canvas className="hero-bg hero-bg-canvas" ref={heroCanvasRef}></canvas>
+              )}
               <div className="hero-grain"></div>
               <div className="hero-content" ref={heroContentRef}>
                 <div className="eyebrow"><span className="dot"></span>I &nbsp;·&nbsp; AI COACH IN YOUR POCKET</div>

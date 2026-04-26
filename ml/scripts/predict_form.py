@@ -11,6 +11,12 @@ def score_form(reference, exercise, angles):
         choices = ", ".join(sorted(reference["references"]))
         raise ValueError(f"Unknown exercise '{exercise}'. Choices: {choices}")
 
+    feature_names = reference["feature_names"]
+    if len(angles) != len(feature_names):
+        raise ValueError(
+            f"Expected {len(feature_names)} angles: {', '.join(feature_names)}"
+        )
+
     stats = reference["references"][exercise]
     mean = np.array(stats["mean"], dtype=float)
     std = np.array(stats["std"], dtype=float)
@@ -26,7 +32,7 @@ def score_form(reference, exercise, angles):
         "is_correct": average_score <= 2.0 and worst_score <= 3.5,
         "average_z_score": average_score,
         "worst_z_score": worst_score,
-        "worst_feature": reference["feature_names"][worst_index],
+        "worst_feature": feature_names[worst_index],
     }
 
 
@@ -43,12 +49,6 @@ def main():
 
     reference = json.loads(Path(args.reference).read_text(encoding="utf-8"))
     angles = [float(value.strip()) for value in args.angles.split(",")]
-
-    if len(angles) != len(reference["feature_names"]):
-        raise ValueError(
-            f"Expected {len(reference['feature_names'])} angles: "
-            f"{', '.join(reference['feature_names'])}"
-        )
 
     print(json.dumps(score_form(reference, args.exercise, angles), indent=2))
 
