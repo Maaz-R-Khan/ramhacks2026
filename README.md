@@ -1,250 +1,53 @@
-# Frontline
+# Formline
 
-Frontline is an AI-assisted exercise form checker and workout guidance prototype. It uses a React frontend, a FastAPI backend, browser camera input, MediaPipe pose landmarks, and a Python machine-learning pipeline to help users review movement quality while training.
+## Inspiration
 
-The current frontend code still uses the product name "Formline" in several places. This README uses "Frontline" because that is the requested project name, but the UI copy should be renamed if Frontline is the final brand.
+We built Formline because workout tracking usually stops at numbers: sets, reps, and weight. That data matters, but it does not tell someone whether they moved well, stayed consistent, or trained in a balanced way.
 
-## Overview
+Our inspiration was a personal trainer experience that could live inside a browser. We wanted an app that helps users log their training while also using the camera to understand form, count reps, and turn each session into useful progress data.
 
-Frontline is built around a simple idea: workout tracking is more useful when the app can also understand how the movement was performed. The project is moving toward a personal-trainer-like experience where a user can choose an exercise, use their laptop or phone camera, receive form feedback, and track training progress over time.
+## What it does
 
-The repository is currently split between `main` and active feature branches. The sections below describe what is already in the repo and what is still prototype or planned work.
+Formline is an AI-assisted fitness tracker and form feedback prototype. A user can create an account, choose an exercise, start a live training session, and use their camera while they work out.
 
-## Current Status
+During a session, Formline uses pose landmarks to track movement, count reps for supported exercises, and display feedback from the backend over a WebSocket connection. When a set is completed, the app saves the set to Firestore under the signed-in user. The dashboard then loads that history to show weekly volume, recent sessions, muscle balance, and personal record trends.
 
-### On `main`
+## How we built it
 
-- React + Vite frontend with landing, about, and login routes.
-- FastAPI backend with:
-  - `GET /ping` health check.
-  - `GET /{full_path:path}` static SPA fallback for a built frontend.
-  - `/ws` WebSocket endpoint that currently echoes messages.
-- `start.py` helper that starts the FastAPI backend and Vite frontend dev server together.
+The frontend is built with React, Vite, and React Router. Firebase Authentication handles sign-in, and Firestore Lite stores workout history for each user.
 
-### In Feature Branches
+The live form experience uses `@mediapipe/tasks-vision` in the browser to load a pose landmarker model, read camera frames, draw pose landmarks, calculate joint angles, and count reps from exercise-specific thresholds. The backend is a FastAPI app with a WebSocket endpoint that receives rep and frame events and sends feedback messages back to the session UI.
 
-| Branch | What it adds | Notes |
-| --- | --- | --- |
-| `origin/oscar` | Exercise library, exercise detail pages, live camera session page, MediaPipe pose overlay, and rep-count prototype. | Sends pose-derived angle data to the backend over WebSockets. Rep detection is threshold-based for supported exercises. |
-| `origin/maaz` | Firebase Auth/Firestore setup, a MediaPipe pose landmarker helper, and an `ml/` folder with dataset notes and training scripts. | Firebase is scaffolded but not wired into a full auth flow. Some frontend helper files are placeholders. |
-| `origin/mlmodel` | Oscar's exercise/session flow plus ML form-reference scoring in the backend. | Loads `ml/models/form_reference.json`, compares live angles against per-exercise reference ranges, and returns feedback messages over WebSockets. |
+For the dashboard, we built a small data layer that saves set logs, updates edited sets, loads recent history, and transforms those logs into chart-ready training summaries.
 
-There is no remote branch named exactly `ml`; the ML work is currently on `origin/mlmodel`.
+## Challenges we ran into
 
-## Core Features
+One of the biggest issues was getting persistent history working reliably. We ran into browser-blocked Firestore WebChannel requests, so we switched the database layer to Firestore Lite because the app only needs one-shot reads and writes right now.
 
-### Exercise Library
+We also hit Firestore permission errors while syncing sets. The app was working locally, but the live Firestore rules were still blocking all reads and writes. Updating the deployed rules to allow signed-in users to access their own `/users/{uid}/setLogs` fixed that path.
 
-The exercise flow in the feature branches includes grouped exercises for chest, back, legs, shoulders, and core. Each exercise can include:
+The computer-vision side also had its own challenges. Camera permissions, model loading, WebSocket connection timing, and noisy pose landmarks all needed defensive handling so the workout screen could fail gracefully instead of breaking the session.
 
-- Name and difficulty.
-- Target joints.
-- Step-by-step instructions.
-- Key joint-angle targets.
-- Common mistakes.
-- Optional rep-detection thresholds.
+## Accomplishments that we're proud of
 
-Current exercise data includes push-ups, wide push-ups, pull-ups, chin-ups, squats, lunges, shoulder circles, arm circles, and planks.
+We are proud that Formline connects several moving parts into one usable flow: authentication, live camera tracking, rep counting, set logging, and a history dashboard.
 
-### Live Form Session
+We are also proud of the user-owned data model. Each user gets their own Firestore history, and the dashboard is no longer static mock data; it reflects sets the user actually logged.
 
-The live session page uses the browser camera and `@mediapipe/tasks-vision` Pose Landmarker. The prototype:
+Another accomplishment is making the app resilient. If camera tracking fails, the session can still show a clear error. If syncing fails, the set is still logged locally in the UI and the app reports a useful Firebase error instead of hiding the cause.
 
-- Requests camera access in the browser.
-- Loads the MediaPipe pose model from Google's hosted model storage.
-- Draws pose landmarks and connectors over the video feed.
-- Computes body angles from detected landmarks.
-- Sends angle data to the FastAPI backend over a WebSocket.
-- Displays backend feedback in the session UI.
+## What we learned
 
-### Rep Detection Prototype
+We learned that real-time browser ML is powerful but fragile. It is not enough to detect landmarks; the app also has to handle model loading, camera access, frame timing, cleanup, and imperfect rep-detection thresholds.
 
-The `origin/oscar` branch includes threshold-based rep detection. For example, push-ups use elbow-angle thresholds to detect the active phase and completed rep. Squats and lunges use knee-angle thresholds. Static or mobility exercises such as planks and arm circles currently do not define rep detection.
+We also learned how important Firebase rules are. A frontend can have the correct project configuration and still fail if the deployed security rules do not match the data structure.
 
-### ML Form Reference Prototype
+Finally, we learned that choosing the right SDK matters. Firestore Lite was a better fit for this project than the full Firestore SDK because Formline currently uses simple reads and writes, not realtime listeners or offline persistence.
 
-The `origin/mlmodel` branch includes a form-scoring prototype based on reference angle statistics:
+## What's next for Formline
 
-- `ml/raw/exercise_angles.csv` contains angle rows labeled by exercise.
-- `ml/scripts/train_form_reference.py` builds per-exercise mean and standard-deviation references.
-- `ml/models/form_reference.json` stores the generated reference model.
-- The backend scores incoming angles with z-scores.
-- Feedback is currently mapped to broad cues such as elbow bend, knee bend, hip alignment, and shoulder position.
+Next, we want to improve the quality of form feedback beyond basic threshold checks. That means collecting more movement examples, validating the angle targets for each exercise, and making feedback more specific to the user's movement.
 
-The prototype currently maps form scoring for push-ups, wide push-ups, pull-ups, chin-ups, and squats. It should be treated as an early baseline, not production-grade fitness or medical advice.
+We also want to add richer workout planning: goals, streaks, programs, recommendations, and better progress insights over time. On the training side, we want to support more exercises, improve rep counting, and make the session flow work well on both laptops and phones.
 
-### Exercise Classification Pipeline
-
-The ML folder also includes a baseline exercise classifier workflow:
-
-- `ml/raw/multiclass_exercise_skeleton.csv` contains 2,700 rows across 7 classes with 132 MediaPipe pose landmark features.
-- `ml/scripts/prepare_landmarks.py` prepares landmark data.
-- `ml/scripts/train_classifier.py` trains a Random Forest classifier.
-- Trained artifacts are written to `ml/models/`.
-
-## Planned Features
-
-These ideas appear in the project direction but are not fully implemented in `main` yet:
-
-- Persistent user accounts.
-- Workout history storage.
-- Goal tracking.
-- Dashboard and progress charts.
-- Personal records.
-- Video upload for form analysis.
-- Production authentication and authorization.
-- Deployed frontend/backend environment.
-- More robust model validation and exercise coverage.
-
-## Tech Stack
-
-### Frontend
-
-- React 19
-- Vite 8
-- React Router 7
-- `@mediapipe/tasks-vision` in the feature branches
-
-### Backend
-
-- Python
-- FastAPI
-- Uvicorn
-- WebSockets
-- Static serving for the built frontend
-
-### Machine Learning
-
-- NumPy
-- scikit-learn
-- joblib
-- MediaPipe landmark and angle features
-- CSV-based training data
-
-### Branch-Only Integrations
-
-- Firebase Auth and Firestore scaffolding on `origin/maaz`
-
-## Project Structure
-
-```text
-.
-|-- backend/
-|   `-- app.py
-|-- frontend/
-|   |-- package.json
-|   |-- src/
-|   |   |-- App.jsx
-|   |   `-- pages/
-|   `-- vite.config.js
-|-- ml/                     # Present on ML feature branches
-|   |-- README.md
-|   |-- raw/
-|   |-- models/
-|   `-- scripts/
-|-- requirements.txt
-`-- start.py
-```
-
-## Routes
-
-Routes currently on `main`:
-
-- `/`
-- `/about`
-- `/login`
-
-Additional routes in the exercise feature branches:
-
-- `/exercises`
-- `/exercises/:id`
-- `/session/:id`
-
-## Installation
-
-Install Python dependencies from the repository root:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-```
-
-Install frontend dependencies:
-
-```bash
-cd frontend
-npm install
-```
-
-Build the frontend before relying on the FastAPI static file server:
-
-```bash
-npm run build
-cd ..
-```
-
-Run both development servers:
-
-```bash
-python3 start.py
-```
-
-The backend runs on `http://127.0.0.1:8000`. Vite will print the frontend dev URL, usually `http://localhost:5173`.
-
-To run only the frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-To run only the backend after building the frontend:
-
-```bash
-cd backend
-python3 -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
-```
-
-## ML Commands
-
-The ML commands apply on the ML feature branches, especially `origin/mlmodel`.
-
-Install ML dependencies:
-
-```bash
-python3 -m pip install -r ml/requirements.txt
-```
-
-Train the form reference model:
-
-```bash
-python3 ml/scripts/train_form_reference.py
-```
-
-Test form scoring for one pose:
-
-```bash
-python3 ml/scripts/predict_form.py \
-  --exercise "Squats" \
-  --angles "90,170,80,95,90,90,90,90,90,90"
-```
-
-Prepare the landmark classifier dataset:
-
-```bash
-python3 ml/scripts/prepare_landmarks.py
-```
-
-Train the exercise classifier:
-
-```bash
-python3 ml/scripts/train_classifier.py
-```
-
-## Development Notes
-
-- The README separates `main` functionality from feature-branch functionality so the project description does not overstate what is merged.
-- The form feedback model is a baseline that compares live angles against reference statistics. It needs validation before being treated as accurate coaching.
-- The login page is currently UI-focused; production authentication is not complete on `main`.
-- Workout tracking, goals, and progress insights are product goals, not completed features in the current `main` branch.
+Before treating Formline as production-ready, we would also harden authentication, rules deployment, environment setup, error reporting, and backend deployment so the app is easier to run and more reliable outside a local demo.
